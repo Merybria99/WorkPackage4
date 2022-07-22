@@ -20,17 +20,17 @@ public class LinkableRingSignature {
 
     public static byte[] sign(PrivateKey privateKey, String message, List<PublicKey> ring){
         byte[] sign_emulator = new byte[256];
-        secureRandom.nextBytes(sign_emulator);
+        new SecureRandom().nextBytes(sign_emulator);
         return sign_emulator;
     }
 
-
-
-    public boolean verify(List<PublicKey> ring, String message, byte[] sign){
-        return secureRandom.nextFloat() < 0.95;
+    public static boolean verify(List<PublicKey> ring, String message, byte[] sign){
+        return new SecureRandom().nextFloat() < 0.95;
     }
 
-    public boolean link(byte[] signA, byte[] signB){
-        return secureRandom.nextFloat() < 0.95;
+    public static boolean link(byte[] signA, byte[] signB){
+        // DA TRUE SE LINKA FALSE ALTRIMENTI
+        //ho messo il segno maggiore per il caso applicativo
+        return new SecureRandom().nextFloat() > 0.95;
     }
 }
