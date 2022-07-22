@@ -21,8 +21,9 @@ public class FiatShamirSignature {
         ecdsaSign.update(plaintext.getBytes("UTF-8"));
         return ecdsaSign.sign();
     }
-    public static byte[] sign(byte[] plaintext,PrivateKey privateKey) throws Exception{
-        Signature ecdsaSign = Signature.getInstance("SHA256withDSA", "BC");
+
+    public static byte[] sign(byte[] plaintext, PrivateKey privateKey) throws Exception {
+        Signature ecdsaSign = Signature.getInstance("SHA256withDSA");
         ecdsaSign.initSign(privateKey);
         ecdsaSign.update(plaintext);
         return ecdsaSign.sign();
@@ -44,6 +45,12 @@ public class FiatShamirSignature {
         return ecdsaVerify.verify(signature);
     }
 
+    public static boolean verify(byte[] plaintext, byte[] signature, PublicKey publicKey) throws Exception {
+        Signature ecdsaVerify = Signature.getInstance("SHA256withDSA");
+        ecdsaVerify.initVerify(publicKey);
+        ecdsaVerify.update(plaintext);
+        return ecdsaVerify.verify(signature);
+    }
 
 
 }

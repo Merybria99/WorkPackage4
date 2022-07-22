@@ -6,6 +6,7 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -27,19 +28,23 @@ public class LinkableRingSignature {
     }
 
     public static boolean verify(List<PublicKey> ring, String message, byte[] sign){
-        return new SecureRandom().nextFloat() < 0.95;
+        return true;
+        //return new SecureRandom().nextFloat() < 0.95;
     }
 
     public static boolean link(byte[] signA, byte[] signB){
         // DA TRUE SE LINKA FALSE ALTRIMENTI
         //ho messo il segno maggiore per il caso applicativo
-        return new SecureRandom().nextFloat() > 0.95;
+        return  new SecureRandom().nextFloat() > 0.5;
     }
 
     public static List<PublicKey> getRandomRing(int size){
+        return new ArrayList<>();
+        /*
         List<PublicKey> ring = SharedData.getPublicKeys();
         Collections.shuffle(ring);
         int randomIndex=new Random().nextInt(ring.toArray().length-size);
         return ring.subList(randomIndex,randomIndex+size-1);
+        */
     }
 }

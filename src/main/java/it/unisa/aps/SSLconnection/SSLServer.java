@@ -1,6 +1,7 @@
 package it.unisa.aps.SSLconnection;
 
 import it.unisa.aps.Utils;
+import it.unisa.aps.contract.Contract;
 import it.unisa.aps.exceptions.VoteNotValidException;
 import it.unisa.aps.signature_schemes.fiat_shamir.FiatShamirSignature;
 import it.unisa.aps.signature_schemes.lrs.LinkableRingSignature;
@@ -65,8 +66,7 @@ public class SSLServer {
                 server.viewProtocol();
             else if (operation.equals("modify"))
                 server.modifyProtocol();
-            else if (operation.equals("generate"))
-                server.generateProtocol();
+
 
 
         }
@@ -83,79 +83,86 @@ public class SSLServer {
     private void modifyProtocol() {
     }
 
-    private void generateProtocol() {
-
-    }
 
     private void viewProtocol() {
 
     }
 
     private void createProtocol() throws Exception {
+
         String message = (String) inputStream.readObject();
         List<PublicKey> ring = (List<PublicKey>) inputStream.readObject();
         byte[] sign = (byte[]) inputStream.readObject();
+
 
         String[] tmp = message.split(" ");
         String vote_string = tmp[tmp.length - 1];
         int vote = Integer.parseInt(vote_string);
 
         //CONTROLLO DEL VOTO BEN FORMATO
-        if(!Utils.isVoteValid(vote)) {
+        if (!Utils.isVoteValid(vote)) {
             String response = "vote is not in valid format";
-            outputStream.writeObject(response);
-            outputStream.writeObject(FiatShamirSignature.sign(response, keyPair.getPrivate()));
+            outputStream.writeObject(Utils.toByteArray(response));
+            outputStream.writeObject(FiatShamirSignature.sign(Utils.toByteArray(response), keyPair.getPrivate()));
             return;
         }
 
-        byte[] response = createResponse(sign,message,vote);
-
+        byte[] response = createResponse(sign, message, vote);
         outputStream.writeObject(response);
         outputStream.writeObject(FiatShamirSignature.sign(response, keyPair.getPrivate()));
 
 
         //Verificare se R appartiene all'insieme
-        if(isRingIncluded(ring))
+        if (!isRingIncluded(ring))
             throw new VoteNotValidException("Ring not supported for signature");
 
         //FARE LA VERIFY DELLA LINK
-        if(LinkableRingSignature.verify(ring, message, sign))
+        if (!LinkableRingSignature.verify(ring, message, sign))
             throw new VoteNotValidException("Linkable Ring Signature verify fails");
 
         //LINK CON TUTTI E DEVE FALLIRE
-        Scanner sc=new Scanner(new FileInputStream("./src/main/resources/VoteChain.txt"));
-        while(sc.hasNextLine()){
-            byte[] contract_sign =  Utils.toByteArray(sc.nextLine().split("|")[0]);
-            if( LinkableRingSignature.link(contract_sign, sign))
-                throw new VoteNotValidException("There is another contract yet");
-        }
+        FileInputStream fis = new FileInputStream("src/main/resources/VoteChain.txt");
+        try {
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            Contract readContract= null;
+            while ((readContract = (Contract) ois.readObject())!=null)
+                if (LinkableRingSignature.link(readContract.getContractId(), sign))
+                    throw new VoteNotValidException("There is another contract yet");
+        } catch (EOFException e) {}
 
         //SCRITTURA SULLA BC
-        String smart_contract = Utils.toString(sign)+"|"+vote+"|"+new Timestamp(new Date().getTime())+"NULL";
-        FileWriter fileWriter = new FileWriter("./src/main/resources/VoteChain.txt");
-        fileWriter.write(smart_contract);
-        fileWriter.close();
+
+        writeContractOnVoteChain(sign, vote);
+
     }
 
-    private byte[] createResponse(byte[] sign, String message, int vote) throws IOException {
-
-        Timestamp timestamp = new Timestamp(new Date().getTime());
-
-        byte[] first_part = Utils.toByteArray("checking ");
-        byte[] second_part = Utils.toByteArray( " in 24h from " + timestamp + ", then voting " + vote);
-        return concatByteArrays(first_part,sign,second_part);
+    private void writeContractOnVoteChain(byte[] sign, int vote) throws IOException {
+        Contract contract = new Contract(sign, vote, new Timestamp(new Date().getTime()));
+        FileOutputStream fos = new FileOutputStream("src/main/resources/VoteChain.txt");
+        ObjectOutputStream oos = new ObjectOutputStream(fos);
+        oos.writeObject(contract);
     }
 
-    private byte[] concatByteArrays(byte[]...a) throws IOException {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        for(byte[] tmp:a){
-            stream.write(tmp);
+    private byte[] createResponse ( byte[] sign, String message,int vote) throws IOException {
+
+            Timestamp timestamp = new Timestamp(new Date().getTime());
+
+            byte[] first_part = Utils.toByteArray("checking ");
+            byte[] second_part = Utils.toByteArray(" in 24h from " + timestamp + ", then voting " + vote);
+            return concatByteArrays(first_part, sign, second_part);
         }
-        return stream.toByteArray();
-    }
-    public boolean isRingIncluded(List<PublicKey>ring){
-        List<PublicKey> publicKeys=SharedData.getPublicKeys();
-        return publicKeys.containsAll(ring);
-    }
 
-}
+        private byte[] concatByteArrays ( byte[]...a) throws IOException {
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            for (byte[] tmp : a) {
+                stream.write(tmp);
+            }
+            return stream.toByteArray();
+        }
+        public boolean isRingIncluded (List < PublicKey > ring) {
+            return true;
+            // List<PublicKey> publicKeys=SharedData.getPublicKeys();
+            // return publicKeys.containsAll(ring);
+        }
+
+    }

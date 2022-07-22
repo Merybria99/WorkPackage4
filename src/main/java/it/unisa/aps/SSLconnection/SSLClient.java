@@ -2,7 +2,9 @@ package it.unisa.aps.SSLconnection;
 
 
 import it.unisa.aps.Utils;
+import it.unisa.aps.exceptions.InvalidCommitException;
 import it.unisa.aps.exceptions.VoteNotValidException;
+import it.unisa.aps.signature_schemes.fiat_shamir.FiatShamirSignature;
 import it.unisa.aps.signature_schemes.lrs.LinkableRingSignature;
 import it.unisa.aps.signature_schemes.lrs.SharedData;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -101,7 +103,7 @@ public class SSLClient {
         }
     }
 
-    public void modifyProtocol(String voteString, String contractId) throws Exception {
+    public void modifyProtocol(String voteString, byte[] contractId) throws Exception {
         int vote = Integer.parseInt(voteString);
         if(!Utils.isVoteValid(vote))
             throw new VoteNotValidException("Vote is not in range {-1,0,1}");
@@ -126,16 +128,18 @@ public class SSLClient {
 
     }
 
-    public void createProtocol(String vote_string) throws Exception {
-        int vote = Integer.parseInt(vote_string);
+    public void createProtocol(String voteString) throws Exception {
+        int vote = Integer.parseInt(voteString);
         if(!Utils.isVoteValid(vote))
             throw new VoteNotValidException("Vote is not in range {-1,0,1}");
 
         String message = "vote request " + vote;
         outputStream.writeObject(message);
+
         List<PublicKey> ring = LinkableRingSignature.getRandomRing(256);
         ring.add(keyPair.getPublic());
         outputStream.writeObject(ring);
+
         byte[] sign = LinkableRingSignature.sign(keyPair.getPrivate(), message, ring);
         outputStream.writeObject(sign);
 
@@ -144,9 +148,12 @@ public class SSLClient {
         byte[] serverResponse = (byte[]) inputStream.readObject();
         byte[] serverCommit = (byte[]) inputStream.readObject();
 
-        String messageResponse=Utils.toString(serverResponse);
-        System.out.println(messageResponse);
 
+        if (!FiatShamirSignature.verify(serverResponse,serverCommit,serverKey)){
+            throw new InvalidCommitException("Fiat Shamir Signature not well formed");
+        }
+
+        System.out.println("Ended...");
     }
 
 
