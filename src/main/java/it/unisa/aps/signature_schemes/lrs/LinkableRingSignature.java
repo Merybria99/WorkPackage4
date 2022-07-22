@@ -9,26 +9,16 @@ import java.security.SecureRandom;
 import java.util.List;
 
 public class LinkableRingSignature {
-    private List<PublicKey> ring;
-    private SecureRandom secureRandom = new SecureRandom();
 
-    public LinkableRingSignature(List<PublicKey> ring) {
-        this.ring = ring;
+    public static void setup(int n){
+        SharedData.setPublicParameters(new SecureRandom(Utils.toByteArray(String.valueOf(n))).nextInt());
     }
 
-    public int setup(int n){
-        return secureRandom.nextInt(n);
-    }
-
-    public KeyPair keygen(int publicParameters)throws Exception{
+    public static KeyPair keygen(int publicParameters)throws Exception{
         return Utils.generateKeys(publicParameters);
     }
 
-    public List<PublicKey> getRing() {
-        return ring;
-    }
-
-    public byte[] sign(PrivateKey privateKey, String message, List<PublicKey> ring){
+    public static byte[] sign(PrivateKey privateKey, String message, List<PublicKey> ring){
         byte[] sign_emulator = new byte[256];
         secureRandom.nextBytes(sign_emulator);
         return sign_emulator;

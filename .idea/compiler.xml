@@ -12,7 +12,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="WorkPackage4" options="--add-exports java.base/sun.security.x509=ALL-UNNAMED" />
+      <module name="WorkPackage4" options="" />
     </option>
   </component>
 </project>

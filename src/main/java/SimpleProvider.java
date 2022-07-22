@@ -1,5 +1,6 @@
-import java.security.*;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
+import java.security.*;
 
 
 public class SimpleProvider {

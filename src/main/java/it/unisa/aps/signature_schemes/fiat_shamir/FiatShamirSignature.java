@@ -45,21 +45,5 @@ public class FiatShamirSignature {
     }
 
 
-    public static void main(String[] args) throws Exception {
-        Security.addProvider(new BouncyCastleProvider());
-
-        String alias= "entry3";
-        String password = "password";
-
-        //KeyPair keypair = GenerateKeys();
-        KeyPair keypair = Utils.getKeyPair("./src/main/resources/key_store.jks", alias, password);
-
-        FiatShamirSignature signature = new FiatShamirSignature();
-        String message = "messaggio da firmare";
-
-        byte[] proof = signature.sign(message, keypair.getPrivate());
-        boolean result = signature.verify(message, proof, keypair.getPublic());
-        System.out.println(result);
-    }
 
 }

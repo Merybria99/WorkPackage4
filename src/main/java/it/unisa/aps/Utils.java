@@ -1,7 +1,15 @@
 package it.unisa.aps;
 
+import it.unisa.aps.exceptions.VoteNotValidException;
+
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.security.*;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -130,6 +138,74 @@ public class Utils {
         g.initialize(keysize, new SecureRandom());
         return g.generateKeyPair();
     }
+
+    /**
+     *
+     * @param path
+     * @param keyPair
+     * @throws Exception
+     */
+    public static void SaveKeyPair(String path, KeyPair keyPair) throws Exception {
+        PrivateKey privateKey = keyPair.getPrivate();
+        PublicKey publicKey = keyPair.getPublic();
+
+        // Store Public Key.
+        X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(
+                publicKey.getEncoded());
+        FileOutputStream fos = new FileOutputStream(path + "/public.key");
+        fos.write(x509EncodedKeySpec.getEncoded());
+        fos.close();
+
+        // Store Private Key.
+        PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(
+                privateKey.getEncoded());
+        fos = new FileOutputStream(path + "/private.key");
+        fos.write(pkcs8EncodedKeySpec.getEncoded());
+        fos.close();
+    }
+
+    /**
+     *
+     * @param path
+     * @param algorithm
+     * @return
+     * @throws Exception
+     */
+    public static KeyPair LoadKeyPair(String path, String algorithm)throws Exception {
+        // Read Public Key.
+        File filePublicKey = new File(path + "/public.key");
+        FileInputStream fis = new FileInputStream(path + "/public.key");
+        byte[] encodedPublicKey = new byte[(int) filePublicKey.length()];
+        fis.read(encodedPublicKey);
+        fis.close();
+
+        // Read Private Key.
+        File filePrivateKey = new File(path + "/private.key");
+        fis = new FileInputStream(path + "/private.key");
+        byte[] encodedPrivateKey = new byte[(int) filePrivateKey.length()];
+        fis.read(encodedPrivateKey);
+        fis.close();
+
+        // Generate KeyPair.
+        KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
+        X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(
+                encodedPublicKey);
+        PublicKey publicKey = keyFactory.generatePublic(publicKeySpec);
+
+        PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(
+                encodedPrivateKey);
+        PrivateKey privateKey = keyFactory.generatePrivate(privateKeySpec);
+
+        return new KeyPair(publicKey, privateKey);
+    }
+
+    public static boolean isVoteValid(int vote) throws VoteNotValidException {
+        return  ((vote >= -1 && vote <= 1));
+
+    }
+
+
+
 
 
 }
