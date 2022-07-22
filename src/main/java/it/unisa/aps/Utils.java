@@ -134,7 +134,7 @@ public class Utils {
      * @throws Exception
      */
     public static KeyPair generateKeys(int keysize) throws Exception {
-        KeyPairGenerator g = KeyPairGenerator.getInstance("DSA", "BC");
+        KeyPairGenerator g = KeyPairGenerator.getInstance("DSA");
         g.initialize(keysize, new SecureRandom());
         return g.generateKeyPair();
     }

@@ -1,5 +1,6 @@
 package it.unisa.aps;
 
+import it.unisa.aps.signature_schemes.lrs.LinkableRingSignature;
 import org.bouncycastle.asn1.x509.ExtendedKeyUsage;
 import org.bouncycastle.asn1.x509.KeyPurposeId;
 import org.bouncycastle.asn1.x509.X509Extensions;
@@ -25,6 +26,7 @@ import java.util.Date;
 import static it.unisa.aps.Utils.generateKeys;
 
 public class ATDManager {
+
 
     /**
      * Generate a keypair and insert them into a keystore (.jks file)
@@ -98,8 +100,8 @@ public class ATDManager {
     public static void main(String[] args) throws Exception {
 
         Security.addProvider(new BouncyCastleProvider());
-        Certificate certificate= generateKeyPairIntoKeyStore("./src/main/resources/key_store.jks","password","entry9","unisa","unisa");
-        saveCertificateToTruststore("./src/main/resources/trust_store.jks","entry9","password",certificate);
+        //Certificate certificate= generateKeyPairIntoKeyStore("./src/main/resources/key_store.jks","password","entry9","unisa","unisa");
+        //saveCertificateToTruststore("./src/main/resources/trust_store.jks","entry9","password",certificate);
     }
 
 

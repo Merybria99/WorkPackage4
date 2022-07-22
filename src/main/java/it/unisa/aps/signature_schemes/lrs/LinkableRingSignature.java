@@ -6,7 +6,9 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public class LinkableRingSignature {
 
@@ -32,5 +34,12 @@ public class LinkableRingSignature {
         // DA TRUE SE LINKA FALSE ALTRIMENTI
         //ho messo il segno maggiore per il caso applicativo
         return new SecureRandom().nextFloat() > 0.95;
+    }
+
+    public static List<PublicKey> getRandomRing(int size){
+        List<PublicKey> ring = SharedData.getPublicKeys();
+        Collections.shuffle(ring);
+        int randomIndex=new Random().nextInt(ring.toArray().length-size);
+        return ring.subList(randomIndex,randomIndex+size-1);
     }
 }
