@@ -7,7 +7,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.SocketException;
 import java.security.KeyPair;
 import java.security.Security;

@@ -88,6 +88,15 @@ public class Utils {
     *             NOSTRE IMPLEMENTAZIONI
     *--------------------------------------------
     * */
+
+    /**
+     * The function gets a KeyPair from a keystore referring to a specific alias
+     * @param keystorePath the path to the keystore folder
+     * @param alias the alias name of the keystore entry
+     * @param password the password of the keystore
+     * @return teh KeyPair of the corresponding alias
+     * @throws Exception
+     */
     public static KeyPair getKeyPair(String keystorePath , String alias, String password) throws Exception{
         KeyStore keystore = KeyStore.getInstance("JKS");
         keystore.load(new FileInputStream(keystorePath), password.toCharArray());
@@ -96,6 +105,14 @@ public class Utils {
         return  new KeyPair(publicKey,privateKey);
     }
 
+    /**
+     * The function gets the public key from the keystore, referring to a particular alias name
+     * @param keystorePath the path to the keystore folder
+     * @param alias the alias name of the keystore entry
+     * @param password the password of the keystore
+     * @return the PublicKey of the corresponding alias
+     * @throws Exception
+     */
     public static PublicKey getPublicKey(String keystorePath , String alias, String password) throws Exception{
         KeyStore keystore = KeyStore.getInstance("JKS");
         keystore.load(new FileInputStream(keystorePath), password.toCharArray());
