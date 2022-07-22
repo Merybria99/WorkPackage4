@@ -13,6 +13,8 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.net.SocketException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.*;
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +25,6 @@ public class SSLClient {
     private SSLSocket sslSocket;
     private PublicKey serverKey;
     private KeyPair keyPair;
-    private byte[] contractId;
 
     private ObjectOutputStream outputStream;
     private ObjectInputStream inputStream;
@@ -71,15 +72,20 @@ public class SSLClient {
             if (!args[0].equals("generate"))
                 client.setKeyPair(Utils.LoadKeyPair("./src/main/resources/clientKeys", algorithm));
 
+
             client.initConnection("localhost", 4000);
 
             client.outputStream.writeObject(args[0]);
             if (args[0].equals("create"))
                 client.createProtocol(args[1]);
-            else if (args[0].equals("view"))
+            else if (args[0].equals("view")){
+                byte[] contractID = Files.readAllBytes(Path.of("src/main/resources/ContractId.txt"));
                 client.viewProtocol();
-            else if (args[0].equals("modify"))
-                client.modifyProtocol(args[1],args[2]);
+            }
+            else if (args[0].equals("modify")){
+                byte[] contractID = Files.readAllBytes(Path.of("src/main/resources/ContractId.txt"));
+                client.modifyProtocol(args[1], contractID);
+            }
             else if (args[0].equals("generate"))
                 client.generateProtocol();
 
@@ -107,11 +113,15 @@ public class SSLClient {
         int vote = Integer.parseInt(voteString);
         if(!Utils.isVoteValid(vote))
             throw new VoteNotValidException("Vote is not in range {-1,0,1}");
-        String message = "voting " + vote + "on contract " + contractId;
+
+        String message = "voting " + vote + "on contract " + Utils.toString(contractId);
 
         outputStream.writeObject(message);
+        outputStream.writeObject(contractId);
+
         List<PublicKey> ring = LinkableRingSignature.getRandomRing(256);
         ring.add(keyPair.getPublic());
+
         outputStream.writeObject(ring);
         byte[] sign = LinkableRingSignature.sign(keyPair.getPrivate(), message, ring);
         outputStream.writeObject(sign);
@@ -119,8 +129,10 @@ public class SSLClient {
         byte[] serverResponse = (byte[]) inputStream.readObject();
         byte[] serverCommit = (byte[]) inputStream.readObject();
 
-        String messageResponse=Utils.toString(serverResponse);
-        System.out.println(messageResponse);
+        if (!FiatShamirSignature.verify(serverResponse,serverCommit,serverKey)){
+            throw new InvalidCommitException("Fiat Shamir Signature not well formed");
+        }
+
 
     }
 
@@ -141,6 +153,11 @@ public class SSLClient {
         outputStream.writeObject(ring);
 
         byte[] sign = LinkableRingSignature.sign(keyPair.getPrivate(), message, ring);
+
+        //salvo l'id del contratto all'interno del file
+        try (FileOutputStream stream = new FileOutputStream("src/main/resources/ContractId.txt")) {
+            stream.write(sign);
+        }
         outputStream.writeObject(sign);
 
         // attendo la risposta dal server

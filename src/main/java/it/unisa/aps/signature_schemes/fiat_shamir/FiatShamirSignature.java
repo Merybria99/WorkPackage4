@@ -15,8 +15,8 @@ public class FiatShamirSignature {
      * @return a bytearray that represents the signature for the plaintext
      * @throws Exception
      */
-    public static byte[] sign(String plaintext,PrivateKey privateKey) throws Exception {
-        Signature ecdsaSign = Signature.getInstance("SHA256withDSA", "BC");
+    public static byte[] sign(String plaintext, PrivateKey privateKey) throws Exception {
+        Signature ecdsaSign = Signature.getInstance("SHA256withDSA");
         ecdsaSign.initSign(privateKey);
         ecdsaSign.update(plaintext.getBytes("UTF-8"));
         return ecdsaSign.sign();
@@ -38,8 +38,8 @@ public class FiatShamirSignature {
      * @return a boolean that is true if the sign is verified , false otherwise
      * @throws Exception
      */
-    public  static boolean verify(String plaintext, byte[] signature, PublicKey publicKey) throws Exception {
-        Signature ecdsaVerify = Signature.getInstance("SHA256withDSA", "BC");
+    public static boolean verify(String plaintext, byte[] signature, PublicKey publicKey) throws Exception {
+        Signature ecdsaVerify = Signature.getInstance("SHA256withDSA");
         ecdsaVerify.initVerify(publicKey);
         ecdsaVerify.update(plaintext.getBytes("UTF-8"));
         return ecdsaVerify.verify(signature);

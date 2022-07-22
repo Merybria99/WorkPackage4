@@ -49,7 +49,7 @@ public class SSLServer {
         Security.addProvider(new BouncyCastleProvider());
 
         SSLServer server = new SSLServer();
-        server.setKeyPair(Utils.getKeyPair("./src/main/resources/key_store.jks", "entry", "password"));
+        server.setKeyPair(Utils.getKeyPair("./src/main/resources/key_store.jks", "entry9", "password"));
         server.initConnection(4000, "./src/main/resources/key_store.jks", "password");
         while (true) {
             SSLSocket sslSock = (SSLSocket) server.getSslServerSocket().accept();
@@ -80,7 +80,37 @@ public class SSLServer {
         this.keyPair = keyPair;
     }
 
-    private void modifyProtocol() {
+    private void modifyProtocol() throws Exception {
+        String message = (String) inputStream.readObject();
+        byte[] contractId = (byte[]) inputStream.readObject();
+        List<PublicKey> ring = (List<PublicKey>) inputStream.readObject();
+        byte[] sign = (byte[]) inputStream.readObject();
+
+        String[] tmp = message.split(" ");
+        String vote_string = tmp[1];
+
+        int vote = Integer.parseInt(vote_string);
+
+        //check if vote is valid
+        if (!Utils.isVoteValid(vote)) {
+            String response = "vote is not in valid format";
+            outputStream.writeObject(Utils.toByteArray(response));
+            outputStream.writeObject(FiatShamirSignature.sign(Utils.toByteArray(response), keyPair.getPrivate()));
+            return;
+        }
+
+
+        //Verificare se R appartiene all'insieme
+        if (!isRingIncluded(ring))
+            throw new VoteNotValidException("Ring not supported for signature");
+
+        //FARE LA VERIFY DELLA LINK
+        if (!LinkableRingSignature.verify(ring, message, sign))
+            throw new VoteNotValidException("Linkable Ring Signature verify fails");
+
+        if (LinkableRingSignature.link(contractId, sign))
+            throw new VoteNotValidException("Not matching contract Id");
+        //cambiare contenuto del contratto e altri
     }
 
 
