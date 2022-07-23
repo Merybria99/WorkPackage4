@@ -201,7 +201,7 @@ public class SSLServer {
 
     private void writeContractOnVoteChain(byte[] sign, int vote) throws IOException {
         Contract contract = new Contract(sign, vote, new Timestamp(new Date().getTime()));
-        FileOutputStream fos = new FileOutputStream("src/main/resources/VoteChain.txt");
+        FileOutputStream fos = new FileOutputStream("src/main/resources/VoteChain.txt",true);
         ObjectOutputStream oos = new ObjectOutputStream(fos);
         oos.writeObject(contract);
     }

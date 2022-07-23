@@ -67,8 +67,11 @@ public class SSLClient {
         String algorithm = "DSA";
 
         Security.addProvider(new BouncyCastleProvider());
+
         SSLClient client = new SSLClient();
-        try {
+
+        try{
+
             client.setServerKey(Utils.getPublicKey("./src/main/resources/trust_store.jks", "entry9", "password"));
 
             //Carico i dati delle chiavi dal file se non sonon in modalità di generazione
@@ -92,6 +95,7 @@ public class SSLClient {
                 byte[] contractID = Files.readAllBytes(Path.of("src/main/resources/clientInfos/contractId.txt"));
 
                 client.modifyProtocol(args[1], contractID);
+
             }
             else if (args[0].equals("generate"))
                 client.generateProtocol();
@@ -145,6 +149,7 @@ public class SSLClient {
     //COMPLETATE
 
     public void createProtocol(String voteString) throws Exception {
+
         int vote = Integer.parseInt(voteString);
         if(!Utils.isVoteValid(vote))
             throw new VoteNotValidException("Vote is not in range {-1,0,1}");
