@@ -80,6 +80,7 @@ public class SSLServer {
     }
 
     private void modifyProtocol() throws Exception {
+
         String message = (String) inputStream.readObject();
         byte[] contractId = (byte[]) inputStream.readObject();
         List<PublicKey> ring = (List<PublicKey>) inputStream.readObject();
@@ -191,7 +192,7 @@ public class SSLServer {
             while ((readContract = (Contract) ois.readObject())!=null)
                 if (LinkableRingSignature.link(readContract.getContractId(), sign))
                     throw new VoteNotValidException("There is another contract yet");
-        } catch (EOFException e) {}
+        } catch (EOFException | StreamCorruptedException e) {}
 
         //SCRITTURA SULLA BC
 

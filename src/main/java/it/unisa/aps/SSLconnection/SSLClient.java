@@ -122,8 +122,8 @@ public class SSLClient {
 
         List<PublicKey> ring = LinkableRingSignature.getRandomRing(1);
         ring.add(keyPair.getPublic());
-
         outputStream.writeObject(ring);
+
         byte[] sign = LinkableRingSignature.sign(keyPair.getPrivate(), message, ring);
         outputStream.writeObject(sign);
 
