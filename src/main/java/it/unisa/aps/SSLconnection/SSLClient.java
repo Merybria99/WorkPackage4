@@ -11,14 +11,17 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import java.io.*;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.*;
-import java.util.Collections;
+import java.security.KeyPair;
+import java.security.PublicKey;
+import java.security.Security;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 
 public class SSLClient {
@@ -70,20 +73,24 @@ public class SSLClient {
 
             //Carico i dati delle chiavi dal file se non sonon in modalità di generazione
             if (!args[0].equals("generate"))
-                client.setKeyPair(Utils.LoadKeyPair("./src/main/resources/clientKeys", algorithm));
+                client.setKeyPair(Utils.LoadKeyPair("./src/main/resources/clientInfos", algorithm));
 
 
             client.initConnection("localhost", 4000);
-
             client.outputStream.writeObject(args[0]);
-            if (args[0].equals("create"))
+            if (args[0].equals("create")){
+
                 client.createProtocol(args[1]);
+            }
+
             else if (args[0].equals("view")){
-                byte[] contractID = Files.readAllBytes(Path.of("src/main/resources/ContractId.txt"));
+                byte[] contractID = Files.readAllBytes(Path.of("src/main/resources/clientInfos/contractId.txt"));
                 client.viewProtocol();
             }
             else if (args[0].equals("modify")){
-                byte[] contractID = Files.readAllBytes(Path.of("src/main/resources/ContractId.txt"));
+
+                byte[] contractID = Files.readAllBytes(Path.of("src/main/resources/clientInfos/contractId.txt"));
+
                 client.modifyProtocol(args[1], contractID);
             }
             else if (args[0].equals("generate"))
@@ -96,30 +103,20 @@ public class SSLClient {
 
     }
 
-    private void generateProtocol() {
-        String keyFolderPath = "./src/main/resources/clientKeys";
 
-        KeyPair keyPair;
-        try {
-            keyPair = LinkableRingSignature.keygen(SharedData.getPublicParameters());
-            System.out.println(keyPair);
-            Utils.SaveKeyPair(keyFolderPath, keyPair);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
 
     public void modifyProtocol(String voteString, byte[] contractId) throws Exception {
         int vote = Integer.parseInt(voteString);
+
         if(!Utils.isVoteValid(vote))
             throw new VoteNotValidException("Vote is not in range {-1,0,1}");
 
-        String message = "voting " + vote + "on contract " + Utils.toString(contractId);
+        String message = "voting " + vote + " on contract " + Utils.toString(contractId);
 
         outputStream.writeObject(message);
         outputStream.writeObject(contractId);
 
-        List<PublicKey> ring = LinkableRingSignature.getRandomRing(256);
+        List<PublicKey> ring = LinkableRingSignature.getRandomRing(1);
         ring.add(keyPair.getPublic());
 
         outputStream.writeObject(ring);
@@ -128,6 +125,8 @@ public class SSLClient {
 
         byte[] serverResponse = (byte[]) inputStream.readObject();
         byte[] serverCommit = (byte[]) inputStream.readObject();
+
+        System.out.println(Utils.toString(serverResponse));
 
         if (!FiatShamirSignature.verify(serverResponse,serverCommit,serverKey)){
             throw new InvalidCommitException("Fiat Shamir Signature not well formed");
@@ -140,6 +139,11 @@ public class SSLClient {
 
     }
 
+
+
+
+    //COMPLETATE
+
     public void createProtocol(String voteString) throws Exception {
         int vote = Integer.parseInt(voteString);
         if(!Utils.isVoteValid(vote))
@@ -150,15 +154,21 @@ public class SSLClient {
 
         List<PublicKey> ring = LinkableRingSignature.getRandomRing(256);
         ring.add(keyPair.getPublic());
+        //List<PublicKey> ring= new ArrayList<>();
         outputStream.writeObject(ring);
+
+        //TO SAVE THE RING THE CLIENT IS SUPPOSED TO WRITE IT INTO THE ring.txt FILE
+        ObjectOutputStream file = new ObjectOutputStream(new FileOutputStream("src/main/resources/clientInfos/ring.txt"));
+        file.writeObject(ring);
 
         byte[] sign = LinkableRingSignature.sign(keyPair.getPrivate(), message, ring);
 
         //salvo l'id del contratto all'interno del file
-        try (FileOutputStream stream = new FileOutputStream("src/main/resources/ContractId.txt")) {
+        try (FileOutputStream stream = new FileOutputStream("./src/main/resources/clientInfos/contractId.txt")) {
             stream.write(sign);
         }
         outputStream.writeObject(sign);
+
 
         // attendo la risposta dal server
 
@@ -173,6 +183,15 @@ public class SSLClient {
         System.out.println("Ended...");
     }
 
+    private void generateProtocol() {
+        String keyFolderPath = "./src/main/resources/clientInfos";
+
+        KeyPair keyPair;
+        try {
+            keyPair = LinkableRingSignature.keygen(SharedData.getPublicParameters());
+            Utils.SaveKeyPair(keyFolderPath, keyPair);
+        } catch (Exception e) {}
+    }
 
 
 }

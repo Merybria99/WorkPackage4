@@ -5,7 +5,6 @@ import it.unisa.aps.contract.Contract;
 import it.unisa.aps.exceptions.VoteNotValidException;
 import it.unisa.aps.signature_schemes.fiat_shamir.FiatShamirSignature;
 import it.unisa.aps.signature_schemes.lrs.LinkableRingSignature;
-import it.unisa.aps.signature_schemes.lrs.SharedData;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.net.ssl.SSLServerSocket;
@@ -17,9 +16,9 @@ import java.security.PublicKey;
 import java.security.Security;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Scanner;
 
 public class SSLServer {
     private SSLServerSocket sslServerSocket;
@@ -86,9 +85,9 @@ public class SSLServer {
         List<PublicKey> ring = (List<PublicKey>) inputStream.readObject();
         byte[] sign = (byte[]) inputStream.readObject();
 
-        String[] tmp = message.split(" ");
-        String vote_string = tmp[1];
-
+        String[] tmp = message.split(" ",-1);
+        System.out.println(Arrays.stream(tmp).toList());
+        String vote_string=tmp[1];
         int vote = Integer.parseInt(vote_string);
 
         //check if vote is valid
@@ -98,25 +97,59 @@ public class SSLServer {
             outputStream.writeObject(FiatShamirSignature.sign(Utils.toByteArray(response), keyPair.getPrivate()));
             return;
         }
-
-
-        //Verificare se R appartiene all'insieme
-        if (!isRingIncluded(ring))
-            throw new VoteNotValidException("Ring not supported for signature");
-
         //FARE LA VERIFY DELLA LINK
         if (!LinkableRingSignature.verify(ring, message, sign))
             throw new VoteNotValidException("Linkable Ring Signature verify fails");
+        //link tra le due firme
+        if (!LinkableRingSignature.link(contractId, sign))
+            throw new VoteNotValidException("Not linking contract Id");
 
-        if (LinkableRingSignature.link(contractId, sign))
-            throw new VoteNotValidException("Not matching contract Id");
-        //cambiare contenuto del contratto e altri
+        //update del contratto e scrittura su blockchain
+        Timestamp timestamp =  new Timestamp(new Date().getTime());
+        byte[] oldSign = modifyContractOnVoteChain(contractId, vote, sign, timestamp);
+
+        String response = "change " + oldSign + " on " + contractId + " at " + timestamp;
+        byte[] modifyResponse = concatByteArrays(Utils.toByteArray("change "), sign,
+                          Utils.toByteArray(" on "), contractId,
+                          Utils.toByteArray(" at " + timestamp));
+        outputStream.writeObject(modifyResponse);
+        outputStream.writeObject(FiatShamirSignature.sign(Utils.toByteArray(response), keyPair.getPrivate()));
+
+    }
+
+    private byte [] modifyContractOnVoteChain(byte[] contractId, int vote, byte[] sign, Timestamp timestamp) throws Exception {
+        byte[] oldSign = new byte[0];
+        ArrayList<Contract> contracts = new ArrayList<>();
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("./src/main/resources/VoteChain.txt"));
+        Contract readContract= null;
+        try {
+            while ((readContract = (Contract) ois.readObject())!=null) {
+                if (readContract.getContractId().equals(contractId)){
+                    oldSign=readContract.getSign();
+                    readContract.update(vote,timestamp,sign);
+
+                }
+                contracts.add(readContract);
+            }
+        } catch (EOFException | StreamCorruptedException e) {}
+        ois.close();
+
+        ObjectOutputStream ous = new ObjectOutputStream(new FileOutputStream("./src/main/resources/VoteChain.txt"));
+        for(Contract item : contracts){
+            ous.writeObject(item);
+        }
+        ous.close();
+        return oldSign;
     }
 
 
     private void viewProtocol() {
 
     }
+
+
+
+    //COMPLETATE
 
     private void createProtocol() throws Exception {
 
@@ -182,17 +215,18 @@ public class SSLServer {
             return concatByteArrays(first_part, sign, second_part);
         }
 
-        private byte[] concatByteArrays ( byte[]...a) throws IOException {
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            for (byte[] tmp : a) {
-                stream.write(tmp);
-            }
-            return stream.toByteArray();
+
+    private byte[] concatByteArrays ( byte[]...a) throws IOException {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        for (byte[] tmp : a) {
+            stream.write(tmp);
         }
-        public boolean isRingIncluded (List < PublicKey > ring) {
-            return true;
-            // List<PublicKey> publicKeys=SharedData.getPublicKeys();
-            // return publicKeys.containsAll(ring);
-        }
+        return stream.toByteArray();
+    }
+    public boolean isRingIncluded (List < PublicKey > ring) {
+        return true;
+        // List<PublicKey> publicKeys=SharedData.getPublicKeys();
+        // return publicKeys.containsAll(ring);
+    }
 
     }

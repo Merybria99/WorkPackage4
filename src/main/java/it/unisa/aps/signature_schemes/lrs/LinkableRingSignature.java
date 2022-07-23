@@ -35,7 +35,8 @@ public class LinkableRingSignature {
     public static boolean link(byte[] signA, byte[] signB){
         // DA TRUE SE LINKA FALSE ALTRIMENTI
         //ho messo il segno maggiore per il caso applicativo
-        return  new SecureRandom().nextFloat() > 0.5;
+       // return  new SecureRandom().nextFloat() > 0.5;
+        return  true;
     }
 
     public static List<PublicKey> getRandomRing(int size){
