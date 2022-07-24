@@ -95,7 +95,7 @@ public class SSLClient {
      * in the right format, on the outputStream together with the contractId.
      * It then sends the signature to the Server, waits for a response from it
      * and displays it on the screen.
-     * If the response from the Server is negative, then the exception is thrown
+     * If the response from the Server is negative, then the exception is thrown.
      *
      * @param voteString
      * @param contractId
