@@ -112,7 +112,7 @@ public class SSLServer {
             return;
         }
 
-        byte[] response = createResponse(sign, message, vote);
+        byte[] response = createResponse(sign, vote);
         outputStream.writeObject(response);
         outputStream.writeObject(FiatShamirSignature.sign(response, keyPair.getPrivate()));
 
@@ -140,7 +140,37 @@ public class SSLServer {
 
     }
 
-    private void viewProtocol() {
+
+    private void viewProtocol() throws Exception {
+        String message = (String) inputStream.readObject();
+        byte[] contractId = (byte[]) inputStream.readObject();
+        List<PublicKey> ring = (List<PublicKey>) inputStream.readObject();
+        byte[] sign = (byte[]) inputStream.readObject();
+
+        if (!LinkableRingSignature.verify(ring, message, sign))
+            throw new VoteNotValidException("Linkable Ring Signature verify fails");
+
+        if (!LinkableRingSignature.link(contractId, sign))
+            throw new VoteNotValidException("Not linking contract Id");
+
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("./src/main/resources/VoteChain.txt"));
+        Contract desiredContract = null;
+        String messageContract = "" ;
+        try {
+            while ((desiredContract = (Contract) ois.readObject()) != null){
+                if (Arrays.equals(desiredContract.getContractId(),contractId)) {
+                    messageContract = desiredContract.toString();
+                    break;
+                }
+            }
+        } catch (EOFException | StreamCorruptedException e) {
+            messageContract= "contract not found";
+
+        }
+        ois.close();
+
+        outputStream.writeObject(messageContract);
+        outputStream.writeObject(FiatShamirSignature.sign(Utils.toByteArray(messageContract), keyPair.getPrivate()));
 
     }
 
@@ -186,6 +216,7 @@ public class SSLServer {
         Timestamp timestamp = new Timestamp(new Date().getTime());
         byte[] oldSign = modifyContractOnVoteChain(contractId, vote, sign, timestamp);
 
+
         String response = "change " + oldSign + " on " + contractId + " at " + timestamp;
         byte[] modifyResponse = concatByteArrays(Utils.toByteArray("change "), sign,
                 Utils.toByteArray(" on "), contractId,
@@ -215,7 +246,8 @@ public class SSLServer {
         Contract readContract = null;
         try {
             while ((readContract = (Contract) ois.readObject()) != null) {
-                if (readContract.getContractId().equals(contractId)) {
+                System.out.println(Utils.toString(readContract.getContractId()));
+                if (Arrays.equals(readContract.getContractId(),contractId)) {
                     oldSign = readContract.getSign();
                     readContract.update(vote, timestamp, sign);
 
@@ -255,7 +287,6 @@ public class SSLServer {
      * the creation phase
      *
      * @param sign    represents the sign of the smart contract
-     * @param message NON SERVE???????
      * @param vote    represents the vote
      * @return byte[] byte array of the response
      * @throws IOException

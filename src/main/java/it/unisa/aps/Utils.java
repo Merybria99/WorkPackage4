@@ -205,7 +205,11 @@ public class Utils {
     }
 
 
+    public static List<PublicKey> getRing(String filePath) {
+        //accede a un file in cui è salvato il ring privato della chiave dello stesso richiedente
+        //già correttamente salvato al primo accesso
 
-
-
+        //ritorna il ring letto
+        return new ArrayList<>();
+    }
 }

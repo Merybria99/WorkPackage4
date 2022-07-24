@@ -11,6 +11,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.SocketException;
@@ -111,7 +112,7 @@ public class SSLClient {
         outputStream.writeObject(message);
         outputStream.writeObject(contractId);
 
-        List<PublicKey> ring = LinkableRingSignature.getRandomRing(1);
+        List<PublicKey> ring = Utils.getRing("src/main/resources/clientInfos/ring.txt");
         ring.add(keyPair.getPublic());
         outputStream.writeObject(ring);
 
@@ -131,7 +132,28 @@ public class SSLClient {
 
     /**
      */
-    public void viewProtocol() {
+    public void viewProtocol(byte[] contractId) throws Exception {
+        String message ="rendering " + Utils.toString(contractId);
+
+        outputStream.writeObject(message);
+        outputStream.writeObject(contractId);
+
+        List<PublicKey> ring = Utils.getRing("src/main/resources/clientInfos/ring.txt");
+        ring.add(keyPair.getPublic());
+        outputStream.writeObject(ring);
+
+        byte[] sign = LinkableRingSignature.sign(keyPair.getPrivate(), message, ring);
+        outputStream.writeObject(sign);
+
+
+        String serverResponse =(String) inputStream.readObject();
+        byte[]  serverCommit =(byte[]) inputStream.readObject();
+
+        if (!FiatShamirSignature.verify(serverResponse, serverCommit, serverKey)) {
+            throw new InvalidCommitException("Fiat Shamir Signature not well formed");
+        }
+
+        System.out.println("contract is:\n"+serverResponse);
 
     }
 
@@ -224,22 +246,21 @@ public class SSLClient {
 
             client.initConnection("localhost", 4000);
             client.outputStream.writeObject(args[0]);
-            if (args[0].equals("create")) {
 
-                client.createProtocol(args[1]);
+            switch (args[0]) {
+                case "create" -> client.createProtocol(args[1]);
+                case "view" -> {
+                    byte[] contractID = Files.readAllBytes(Path.of("src/main/resources/clientInfos/contractId.txt"));
+                    client.viewProtocol(contractID);
+                    break;
+                }
+                case "modify" -> {
+                    byte[] contractID = Files.readAllBytes(Path.of("src/main/resources/clientInfos/contractId.txt"));
+                    client.modifyProtocol(args[1], contractID);
+                    break;
+                }
+                case "generate" -> client.generateProtocol();
             }
-
-            else if (args[0].equals("view")) {
-                byte[] contractID = Files.readAllBytes(Path.of("src/main/resources/clientInfos/contractId.txt"));
-                client.viewProtocol();
-            } else if (args[0].equals("modify")) {
-
-                byte[] contractID = Files.readAllBytes(Path.of("src/main/resources/clientInfos/contractId.txt"));
-
-                client.modifyProtocol(args[1], contractID);
-
-            } else if (args[0].equals("generate"))
-                client.generateProtocol();
 
         } catch (Exception e) {
             if (e instanceof SocketException)
