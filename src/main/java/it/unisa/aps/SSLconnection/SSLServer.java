@@ -244,7 +244,7 @@ public class SSLServer {
         ArrayList<Contract> contracts = new ArrayList<>();
         ObjectInputStream ois = new ObjectInputStream(new FileInputStream("./src/main/resources/VoteChain.txt"));
         Contract readContract = null;
-        try {
+        try{
             while ((readContract = (Contract) ois.readObject()) != null) {
                 System.out.println(Utils.toString(readContract.getContractId()));
                 if (Arrays.equals(readContract.getContractId(),contractId)) {

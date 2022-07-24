@@ -186,17 +186,15 @@ public class SSLClient {
         outputStream.writeObject(ring);
 
         // TO SAVE THE RING THE CLIENT IS SUPPOSED TO WRITE IT INTO THE ring.txt FILE
-        ObjectOutputStream file = new ObjectOutputStream(
-                new FileOutputStream("src/main/resources/clientInfos/ring.txt"));
+        ObjectOutputStream file = new ObjectOutputStream(new FileOutputStream("src/main/resources/clientInfos/ring.txt"));
         file.writeObject(ring);
 
         byte[] sign = LinkableRingSignature.sign(keyPair.getPrivate(), message, ring);
 
         // salvo l'id del contratto all'interno del file
-        try (FileOutputStream stream = new FileOutputStream("./src/main/resources/clientInfos/contractId.txt")) {
-            stream.write(sign);
-        }
-        outputStream.writeObject(sign);
+         FileOutputStream stream = new FileOutputStream("./src/main/resources/clientInfos/contractId.txt");
+         stream.write(sign);
+         outputStream.writeObject(sign);
 
         // attendo la risposta dal server
 
