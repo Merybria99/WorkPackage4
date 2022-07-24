@@ -291,7 +291,7 @@ public class SSLServer {
      * @return byte[] byte array of the response
      * @throws IOException
      */
-    private byte[] createResponse(byte[] sign, String message, int vote) throws IOException {
+    private byte[] createResponse(byte[] sign, int vote) throws IOException {
 
         Timestamp timestamp = new Timestamp(new Date().getTime());
 
@@ -313,7 +313,7 @@ public class SSLServer {
         return stream.toByteArray();
     }
 
-    /***************** LRS OPERATIONS ******************/
+    /***************** SERVER-SIDE CHECKS ******************/
 
     /**
      * @param ring represents the ring you want to check if it is included in the
