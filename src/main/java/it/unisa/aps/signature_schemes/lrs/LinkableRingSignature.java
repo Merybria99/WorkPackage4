@@ -38,6 +38,7 @@ public class LinkableRingSignature {
     }
 
     /**
+     * The following method is used to emulate a firm's signature
      * @param privateKey
      * @param message
      * @param ring

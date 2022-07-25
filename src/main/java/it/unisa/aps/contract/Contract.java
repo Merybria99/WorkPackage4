@@ -32,11 +32,11 @@ public class Contract implements Serializable {
     }
 
     /**
-     *
-     * @param contractId   represents the sign produced by the client for the
-     *                     contract creation request
-     * @param vote         represents the vote
-     * @param lastModified represents the timestamp of the last change made
+     * Overload of the previous constructor method.
+     * In this case, lastCommit is null
+     * @param contractId
+     * @param vote
+     * @param lastModified
      */
     public Contract(byte[] contractId, int vote, Timestamp lastModified) {
         this.contractId = contractId;
