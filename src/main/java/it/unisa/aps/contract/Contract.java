@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class represents a smart contract
+ * This class represents a smart contract abstraction
  */
 public class Contract implements Serializable {
     private byte[] contractId;

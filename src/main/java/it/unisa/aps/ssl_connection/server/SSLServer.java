@@ -126,7 +126,7 @@ public class SSLServer {
      *
      * @throws Exception
      */
-    private void createProtocol() throws Exception {
+    public void createProtocol() throws Exception {
         String message = (String) inputStream.readObject();
         List<PublicKey> ring = (List<PublicKey>) inputStream.readObject();
         byte[] sign = (byte[]) inputStream.readObject();
@@ -182,7 +182,7 @@ public class SSLServer {
      *
      * @throws Exception
      */
-    private void viewProtocol() throws Exception {
+    public void viewProtocol() throws Exception {
         String message = (String) inputStream.readObject();
         byte[] contractId = (byte[]) inputStream.readObject();
         List<PublicKey> ring = (List<PublicKey>) inputStream.readObject();
@@ -227,7 +227,7 @@ public class SSLServer {
      *
      * @throws Exception
      */
-    private void modifyProtocol() throws Exception {
+    public void modifyProtocol() throws Exception {
 
         String message = (String) inputStream.readObject();
         byte[] contractId = (byte[]) inputStream.readObject();
@@ -235,7 +235,6 @@ public class SSLServer {
         byte[] sign = (byte[]) inputStream.readObject();
 
         String[] tmp = message.split(" ", -1);
-        System.out.println(Arrays.stream(tmp).toList());
         String vote_string = tmp[1];
         int vote = Integer.parseInt(vote_string);
 

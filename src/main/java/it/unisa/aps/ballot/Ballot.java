@@ -10,7 +10,7 @@ import java.io.ObjectInputStream;
 public class Ballot {
 
     /**
-     * This main run the ballot operation
+     * This main runs the ballot operation
      *
      * @param args represents the first and second candidates name
      * @throws Exception

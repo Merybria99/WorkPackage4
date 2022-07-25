@@ -61,9 +61,10 @@ public class LinkableRingSignature {
     }
 
     /**
-     * @param signA
-     * @param signB
-     * @return boolean
+     * The function checks if the two signs were produced by the same ring.
+     * @param signA the first sign produced with LRS
+     * @param signB the second sign produced with LRS
+     * @return boolean true if the two signs produced from the same ring, otherwise false
      */
     public static boolean link(byte[] signA, byte[] signB) {
         return new SecureRandom().nextFloat() > 0.5;

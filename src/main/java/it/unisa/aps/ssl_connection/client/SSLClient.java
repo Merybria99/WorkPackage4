@@ -237,7 +237,7 @@ public class SSLClient {
      * The method is used to generate a keyPair using the keygen function.
      * The method also saves the keyPair to a file.
      */
-    private void generateProtocol() {
+    public void generateProtocol() {
         String keyFolderPath = "./src/main/resources/clientInfos";
         KeyPair keyPair;
         try {
@@ -247,55 +247,5 @@ public class SSLClient {
 
     }
 
-    /**
-     * The main method in this class is used to manage the behaviour of the client,
-     * that wants to send requests to the server.
-     * Based on the parameters passed by argument, a specific request is sent to the
-     * server.
-     *
-     * @param args represents the modality of operation (generate keypair or create,
-     *             modify, view the contract)
-     */
-    public static void main(String[] args) {
-        // definisco l'algoritmo di lettura delle chiavi pari a DSA in quanto java non
-        // supporta la creazione di chiavi con LRS
-        String algorithm = "DSA";
-
-        Security.addProvider(new BouncyCastleProvider());
-
-        SSLClient client = new SSLClient();
-
-        try {
-
-            client.setServerKey(Utils.getPublicKey("./src/main/resources/trust_store.jks", "entry9", "password"));
-
-            // Carico i dati delle chiavi dal file se non sonon in modalità di generazione
-            if (!args[0].equals("generate"))
-                client.setKeyPair(Utils.LoadKeyPair("./src/main/resources/clientInfos", algorithm));
-
-            client.initConnection("localhost", 4000);
-            client.outputStream.writeObject(args[0]);
-
-            switch (args[0]) {
-                case "create" -> client.createProtocol(args[1]);
-                case "view" -> {
-                    byte[] contractID = Files.readAllBytes(Path.of("src/main/resources/clientInfos/contractId.txt"));
-                    client.viewProtocol(contractID);
-                    break;
-                }
-                case "modify" -> {
-                    byte[] contractID = Files.readAllBytes(Path.of("src/main/resources/clientInfos/contractId.txt"));
-                    client.modifyProtocol(args[1], contractID);
-                    break;
-                }
-                case "generate" -> client.generateProtocol();
-            }
-
-        } catch (Exception e) {
-            if (e instanceof SocketException)
-                System.out.println("Connection ended...");
-        }
-
-    }
 
 }
