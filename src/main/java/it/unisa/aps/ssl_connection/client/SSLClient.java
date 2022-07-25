@@ -1,4 +1,4 @@
-package it.unisa.aps.SSLconnection;
+package it.unisa.aps.ssl_connection.client;
 
 import it.unisa.aps.Utils;
 import it.unisa.aps.exceptions.InvalidCommitException;
@@ -10,17 +10,10 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.SocketException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.*;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.security.Security;
-import java.util.ArrayList;
 import java.util.List;
 
 public class SSLClient {
@@ -38,8 +31,10 @@ public class SSLClient {
      * trustStore and its password, creates the Socket, chooses the protocol
      * to be followed, and starts the handshake phase.
      *
-     * @param server
-     * @param port
+     * @param server             address of the server to which it will connect
+     * @param port               the server port to connect to
+     * @param trustStorePassword represents the password of the KeyStore
+     * @param trustStorePath     represents the path of the KeyStore
      * @throws Exception
      */
     public void initConnection(String server, int port) throws Exception {
@@ -49,11 +44,13 @@ public class SSLClient {
         SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
 
         sslSocket = (SSLSocket) sslSocketFactory.createSocket(server, port);
-        sslSocket.setEnabledProtocols(new String[] { "TLSv1.2" });
+
+        sslSocket.setEnabledProtocols(new String[]{"TLSv1.2"});
         sslSocket.startHandshake();
 
         outputStream = new ObjectOutputStream(sslSocket.getOutputStream());
         inputStream = new ObjectInputStream(sslSocket.getInputStream());
+
     }
 
     /***************** GETTER AND SETTER ******************/
@@ -85,6 +82,21 @@ public class SSLClient {
     public void setKeyPair(KeyPair keyPair) {
         this.keyPair = keyPair;
     }
+
+    /**
+     * @return
+     */
+    public ObjectOutputStream getOutputStream() {
+        return outputStream;
+    }
+
+    /**
+     * @return
+     */
+    public ObjectInputStream getInputStream() {
+        return inputStream;
+    }
+
 
     /***************** PROTOCOLS ******************/
 
@@ -226,13 +238,12 @@ public class SSLClient {
      */
     private void generateProtocol() {
         String keyFolderPath = "./src/main/resources/clientInfos";
-
         KeyPair keyPair;
         try {
             keyPair = LinkableRingSignature.keygen(SharedData.getPublicParameters());
             Utils.SaveKeyPair(keyFolderPath, keyPair);
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
+
     }
 
     /**

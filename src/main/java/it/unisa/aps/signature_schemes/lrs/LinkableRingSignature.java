@@ -17,8 +17,6 @@ import java.util.List;
  */
 public class LinkableRingSignature {
 
-
-
     /**
      * The function sets the Public Parameters of the scheme
      * @param n
@@ -38,11 +36,12 @@ public class LinkableRingSignature {
     }
 
     /**
-     * The following method is used to emulate a firm's signature
-     * @param privateKey
-     * @param message
-     * @param ring
-     * @return byte[]
+     * The following method is used to emulate a firm's signature, in accordance with the proposed
+     * Linkable Ring Signature scheme.
+     * @param privateKey private key forged according to the Linkable Ring Signature keygen algorithm
+     * @param message the message for which you want to get a signature
+     * @param ring the ring specified for the current sign
+     * @return byte[] provides a vector of bytes representing the signature for the above message
      */
     public static byte[] sign(PrivateKey privateKey, String message, List<PublicKey> ring) {
         byte[] sign_emulator = new byte[256];
@@ -58,8 +57,7 @@ public class LinkableRingSignature {
      * @return boolean true if the sign matches, false otherwise
      */
     public static boolean verify(List<PublicKey> ring, String message, byte[] sign) {
-        return true;
-        // return new SecureRandom().nextFloat() < 0.95;
+        return new SecureRandom().nextFloat() < 0.95;
     }
 
     /**
@@ -74,7 +72,8 @@ public class LinkableRingSignature {
         return true;
     }
 
-    /**
+    /**The following method makes it possible to logically implement the choice of a ring with random public keys.
+     * The implementation is shown even though, since it cannot implement valid keys, it turns out to be simulated.
      * @param size represents the size of the subset of the total Public Keys that you want to obtain
      * @return List<PublicKey> the
      */

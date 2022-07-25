@@ -1,4 +1,4 @@
-package it.unisa.aps.count;
+package it.unisa.aps.ballot;
 
 import it.unisa.aps.contract.Contract;
 
@@ -6,9 +6,8 @@ import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.lang.reflect.Array;
 
-public class Counter {
+public class Ballot {
 
     /**
      * This main run the ballot operation

@@ -1,19 +1,16 @@
-package it.unisa.aps.SSLconnection;
+package it.unisa.aps.ssl_connection.server;
 
 import it.unisa.aps.Utils;
 import it.unisa.aps.contract.Contract;
 import it.unisa.aps.exceptions.VoteNotValidException;
 import it.unisa.aps.signature_schemes.fiat_shamir.FiatShamirSignature;
 import it.unisa.aps.signature_schemes.lrs.LinkableRingSignature;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
-import javax.net.ssl.SSLSocket;
 import java.io.*;
 import java.security.KeyPair;
 import java.security.PublicKey;
-import java.security.Security;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,6 +22,8 @@ public class SSLServer {
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
     private KeyPair keyPair;
+    private static String voteChainPath = "./src/main/resources/VoteChain.txt";
+
 
     /***************** SOCKET AND CONNECTION OPERATIONS ******************/
 
@@ -78,6 +77,38 @@ public class SSLServer {
         this.keyPair = keyPair;
     }
 
+    /**
+     *
+     * @return
+     */
+    public ObjectInputStream getInputStream() {
+        return inputStream;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public ObjectOutputStream getOutputStream() {
+        return outputStream;
+    }
+
+    /**
+     *
+     * @param inputStream
+     */
+    public void setInputStream(ObjectInputStream inputStream) {
+        this.inputStream = inputStream;
+    }
+
+    /**
+     *
+     * @param outputStream
+     */
+    public void setOutputStream(ObjectOutputStream outputStream) {
+        this.outputStream = outputStream;
+    }
+
     /***************** PROTOCOLS ******************/
 
     /**
@@ -125,7 +156,7 @@ public class SSLServer {
             throw new VoteNotValidException("Linkable Ring Signature verify fails");
 
         // Step 4
-        FileInputStream fis = new FileInputStream("src/main/resources/VoteChain.txt");
+        FileInputStream fis = new FileInputStream(voteChainPath);
         try {
             ObjectInputStream ois = new ObjectInputStream(fis);
             Contract readContract = null;
@@ -284,7 +315,7 @@ public class SSLServer {
      */
     private void writeContractOnVoteChain(byte[] sign, int vote) throws IOException {
         Contract contract = new Contract(sign, vote, new Timestamp(new Date().getTime()));
-        FileOutputStream fos = new FileOutputStream("src/main/resources/VoteChain.txt", true);
+        FileOutputStream fos = new FileOutputStream(voteChainPath, true);
         ObjectOutputStream oos = new ObjectOutputStream(fos);
         oos.writeObject(contract);
     }
@@ -338,39 +369,5 @@ public class SSLServer {
         // return publicKeys.containsAll(ring);
     }
 
-    /***************** MAIN ******************/
-
-    /**
-     * The main method in this class is used to manage the behaviour of the server
-     * in response to the client.
-     * The connection is initialised and the server waits for requests from clients.
-     *
-     * @throws Exception
-     */
-    public static void main(String[] args) throws Exception {
-
-        Security.addProvider(new BouncyCastleProvider());
-
-        SSLServer server = new SSLServer();
-        server.setKeyPair(Utils.getKeyPair("./src/main/resources/key_store.jks", "entry9", "password"));
-        server.initConnection(4000, "./src/main/resources/key_store.jks", "password");
-        while (true) {
-            SSLSocket sslSock = (SSLSocket) server.getSslServerSocket().accept();
-            System.out.println("New connection from: " + sslSock.getLocalAddress());
-
-            server.inputStream = new ObjectInputStream(sslSock.getInputStream());
-            server.outputStream = new ObjectOutputStream(sslSock.getOutputStream());
-
-            String operation = (String) server.inputStream.readObject();
-
-            if (operation.equals("create"))
-                server.createProtocol();
-            else if (operation.equals("view"))
-                server.viewProtocol();
-            else if (operation.equals("modify"))
-                server.modifyProtocol();
-
-        }
-    }
 
 }
