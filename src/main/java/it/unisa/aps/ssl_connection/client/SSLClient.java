@@ -194,7 +194,6 @@ public class SSLClient extends LinkableRingSignature {
      * @param voteString
      * @throws Exception
      */
-    // COMPLETATE
     public void createProtocol(String voteString) throws Exception {
 
         int vote = Integer.parseInt(voteString);
@@ -216,13 +215,10 @@ public class SSLClient extends LinkableRingSignature {
 
         byte[] sign = LinkableRingSignature.sign(keyPair.getPrivate(), message, ring);
 
-        // salvo l'id del contratto all'interno del file
         FileOutputStream stream = new FileOutputStream("./src/main/resources/clientInfos/contractId.txt");
         stream.write(sign);
         outputStream.writeObject(sign);
-
-        // attendo la risposta dal server
-
+        
         byte[] serverResponse = (byte[]) inputStream.readObject();
         byte[] serverCommit = (byte[]) inputStream.readObject();
 
