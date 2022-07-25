@@ -1,10 +1,8 @@
 package it.unisa.aps.signature_schemes.fiat_shamir;
 
-import it.unisa.aps.Utils;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-
-import java.security.*;
-import java.util.Random;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
 
 public class FiatShamirSignature {
 

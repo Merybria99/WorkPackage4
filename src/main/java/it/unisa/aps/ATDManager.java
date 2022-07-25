@@ -1,6 +1,5 @@
 package it.unisa.aps;
 
-import it.unisa.aps.signature_schemes.lrs.LinkableRingSignature;
 import org.bouncycastle.asn1.x509.ExtendedKeyUsage;
 import org.bouncycastle.asn1.x509.KeyPurposeId;
 import org.bouncycastle.asn1.x509.X509Extensions;
@@ -8,9 +7,6 @@ import org.bouncycastle.asn1.x509.X509Name;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
 
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
 import javax.security.auth.x500.X500Principal;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -100,8 +96,9 @@ public class ATDManager {
     public static void main(String[] args) throws Exception {
 
         Security.addProvider(new BouncyCastleProvider());
-        //Certificate certificate= generateKeyPairIntoKeyStore("./src/main/resources/key_store.jks","password","entry9","unisa","unisa");
-        //saveCertificateToTruststore("./src/main/resources/trust_store.jks","entry9","password",certificate);
+
+        //Certificate certificate= generateKeyPairIntoKeyStore("./src/main/resources/key_store.jks","password","entry10","unisa","unisa");
+        //saveCertificateToTruststore("./src/main/resources/trust_store.jks","entry10","password",certificate);
     }
 
 

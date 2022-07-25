@@ -91,7 +91,7 @@ public class Utils {
 
     /*
      * -------------------------------------------
-     * NOSTRE IMPLEMENTAZIONI
+     * OUR IMPLEMENTATIONS
      * --------------------------------------------
      */
 
@@ -131,7 +131,9 @@ public class Utils {
 
     /**
      * The function generates a KeyPair of public and private keys which can be used
-     * to sign m256withDSA protocol
+     * to sign sha256withDSA protocol
+     *
+     * we chose to use DSA as ECDSA was unsupported for the key and trust stores.
      *
      * @return the KeyPair of generated keys
      * @throws Exception
@@ -168,6 +170,7 @@ public class Utils {
     }
 
     /**
+     * The functions loadsthe key pair into a key file in order to make it available for the client
      *
      * @param path
      * @param algorithm
@@ -202,6 +205,12 @@ public class Utils {
         return new KeyPair(publicKey, privateKey);
     }
 
+    /**
+     * The function checks if the vote is in the correct range of values
+     * @param vote the number representing the vote
+     * @return notifies true if the vote is in the correct range, false otherwise
+     * @throws VoteNotValidException
+     */
     public static boolean isVoteValid(int vote) throws VoteNotValidException {
         return ((vote >= -1 && vote <= 1));
 
@@ -210,6 +219,9 @@ public class Utils {
     /**
      * This method accesses a file in which the applicant's own private key ring,
      * already correctly saved on first access, is saved.
+     *
+     * The file is not correctly implemented as the correct type for linkable ring signature public keys was not
+     * supported by Java
      *
      * @param filePath the path of the file containing the ring
      */

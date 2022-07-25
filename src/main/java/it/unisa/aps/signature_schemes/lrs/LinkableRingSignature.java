@@ -7,13 +7,20 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
+/**
+ * The class implementation is empty or defined with probabilistic outputs as the
+ * linkable ring signature scheme implementation was not required to be done as it
+ * was not a part of the program, according to what was established with the professor
+ * Ivan Visconti.
+ */
 public class LinkableRingSignature {
 
+
+
     /**
+     * The function sets the Public Parameters of the scheme
      * @param n
      */
     public static void setup(int n) {
@@ -42,10 +49,11 @@ public class LinkableRingSignature {
     }
 
     /**
-     * @param ring
-     * @param message
-     * @param sign
-     * @return boolean
+     * The function verifies if the sign provided corresponds with the provided message
+     * @param ring the ring specified for the current sign
+     * @param message the message to be tested
+     * @param sign the sign to be tested
+     * @return boolean true if the sign matches, false otherwise
      */
     public static boolean verify(List<PublicKey> ring, String message, byte[] sign) {
         return true;

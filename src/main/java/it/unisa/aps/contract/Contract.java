@@ -15,7 +15,14 @@ public class Contract implements Serializable {
     private byte[] lastCommit;
     private List<Contract> transaction;
 
-    // DA ELIMINARE???????
+    /**
+     *
+     * @param contractId   represents the sign produced by the client for the
+     *                     contract creation request
+     * @param vote         represents the vote
+     * @param lastModified represents the timestamp of the last change made
+     * @param lastCommit   represents the last sign
+     */
     public Contract(byte[] contractId, int vote, Timestamp lastModified, byte[] lastCommit) {
         this.contractId = contractId;
         this.vote = vote;
