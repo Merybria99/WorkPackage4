@@ -37,9 +37,10 @@ public class SSLClient {
      * @param trustStorePath     represents the path of the KeyStore
      * @throws Exception
      */
-    public void initConnection(String server, int port) throws Exception {
-        System.setProperty("javax.net.ssl.trustStore", "./src/main/resources/trust_store.jks");
-        System.setProperty("javax.net.ssl.trustStorePassword", "password");
+    public void initConnection(String server, int port, String trustStorePath, String trustStorePassword) throws Exception {
+        System.setProperty("javax.net.ssl.trustStore", trustStorePath);
+        System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
+
 
         SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
 
@@ -109,7 +110,7 @@ public class SSLClient {
      * and displays it on the screen.
      * If the response from the Server is negative, then the exception is thrown.
      *
-     * @param voteString
+     * @param voteString represents the vote message
      * @param contractId represents the contract ID
      * @throws Exception
      */

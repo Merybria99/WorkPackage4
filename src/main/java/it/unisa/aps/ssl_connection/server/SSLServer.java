@@ -194,7 +194,7 @@ public class SSLServer {
         if (!LinkableRingSignature.link(contractId, sign))
             throw new VoteNotValidException("Not linking contract Id");
 
-        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("./src/main/resources/VoteChain.txt"));
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(voteChainPath));
         Contract desiredContract = null;
         String messageContract = "";
         try {
@@ -282,8 +282,8 @@ public class SSLServer {
             throws Exception {
         byte[] oldSign = new byte[0];
         ArrayList<Contract> contracts = new ArrayList<>();
-        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("./src/main/resources/VoteChain.txt"));
-        Contract readContract = null;
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(voteChainPath));
+        Contract readContract;
         try {
             while ((readContract = (Contract) ois.readObject()) != null) {
                 System.out.println(Utils.toString(readContract.getContractId()));
@@ -298,7 +298,7 @@ public class SSLServer {
         }
         ois.close();
 
-        ObjectOutputStream ous = new ObjectOutputStream(new FileOutputStream("./src/main/resources/VoteChain.txt"));
+        ObjectOutputStream ous = new ObjectOutputStream(new FileOutputStream(voteChainPath));
         for (Contract item : contracts) {
             ous.writeObject(item);
         }

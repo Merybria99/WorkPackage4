@@ -19,7 +19,7 @@ public class LinkableRingSignature {
 
     /**
      * The function sets the Public Parameters of the scheme
-     * @param n
+     * @param n represents the security parameter
      */
     public static void setup(int n) {
         SharedData.setPublicParameters(new SecureRandom(Utils.toByteArray(String.valueOf(n))).nextInt());
@@ -66,16 +66,14 @@ public class LinkableRingSignature {
      * @return boolean
      */
     public static boolean link(byte[] signA, byte[] signB) {
-        // DA TRUE SE LINKA FALSE ALTRIMENTI
-        // ho messo il segno maggiore per il caso applicativo
-        // return new SecureRandom().nextFloat() > 0.5;
-        return true;
+        return new SecureRandom().nextFloat() > 0.5;
+
     }
 
     /**The following method makes it possible to logically implement the choice of a ring with random public keys.
      * The implementation is shown even though, since it cannot implement valid keys, it turns out to be simulated.
      * @param size represents the size of the subset of the total Public Keys that you want to obtain
-     * @return List<PublicKey> the
+     * @return List<PublicKey> the ring representative of the portion of Public Keys
      */
     public static List<PublicKey> getRandomRing(int size) {
         return new ArrayList<>();
