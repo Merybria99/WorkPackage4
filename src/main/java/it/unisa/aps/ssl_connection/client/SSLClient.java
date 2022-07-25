@@ -16,7 +16,7 @@ import java.security.PublicKey;
 import java.security.Security;
 import java.util.List;
 
-public class SSLClient {
+public class SSLClient extends LinkableRingSignature {
     private SSLSocket sslSocket;
     private PublicKey serverKey;
     private KeyPair keyPair;

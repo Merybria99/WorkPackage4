@@ -1,6 +1,8 @@
 package it.unisa.aps;
 
 import it.unisa.aps.exceptions.VoteNotValidException;
+import it.unisa.aps.ssl_connection.client.SSLClient;
+import it.unisa.aps.ssl_connection.server.SSLServer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,7 +17,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
-public class Utils {
+public class Utils extends SSLServer {
 
     public static String toHex(byte[] data, int length) {
         StringBuilder buf = new StringBuilder();

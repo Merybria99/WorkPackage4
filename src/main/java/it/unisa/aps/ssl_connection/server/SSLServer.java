@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-public class SSLServer {
+public class SSLServer extends LinkableRingSignature {
     private SSLServerSocket sslServerSocket;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
