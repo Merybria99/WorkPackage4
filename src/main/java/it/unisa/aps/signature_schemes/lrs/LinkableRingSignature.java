@@ -28,8 +28,9 @@ public class LinkableRingSignature {
     }
 
     /**
-     * @param publicParameters
-     * @return KeyPair
+     * Given Public Parameters, generates a KeyPair
+     * @param publicParameters represents Public Parameters generated in the setup method
+     * @return KeyPair represents the KeyPair generated
      * @throws Exception
      */
     public static KeyPair keygen(int publicParameters) throws Exception {
@@ -73,8 +74,8 @@ public class LinkableRingSignature {
     }
 
     /**
-     * @param size
-     * @return List<PublicKey>
+     * @param size represents the size of the subset of the total Public Keys that you want to obtain
+     * @return List<PublicKey> the
      */
     public static List<PublicKey> getRandomRing(int size) {
         return new ArrayList<>();

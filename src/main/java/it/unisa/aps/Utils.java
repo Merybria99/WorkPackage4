@@ -145,9 +145,9 @@ public class Utils {
     }
 
     /**
-     *
-     * @param path
-     * @param keyPair
+     * This method saves a given keypair to a file
+     * @param path represents the path of the keypair file (.key)
+     * @param keyPair represents the keypair you want to save
      * @throws Exception
      */
     public static void SaveKeyPair(String path, KeyPair keyPair) throws Exception {
@@ -172,8 +172,8 @@ public class Utils {
     /**
      * The functions loadsthe key pair into a key file in order to make it available for the client
      *
-     * @param path
-     * @param algorithm
+     * @param path represents the path where keypair is stored
+     * @param algorithm represents the algorithm used for keypair
      * @return
      * @throws Exception
      */
@@ -225,12 +225,7 @@ public class Utils {
      *
      * @param filePath the path of the file containing the ring
      */
-    public static List<PublicKey> getRing(String filePath) {
-        // accede a un file in cui è salvato il ring privato della chiave dello stesso
-        // richiedente
-        // già correttamente salvato al primo accesso
-
-        // ritorna il ring letto
+    public static List<PublicKey> getRing(String filePath){
         return new ArrayList<>();
     }
 }
