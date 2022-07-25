@@ -98,7 +98,7 @@ public class SSLClient {
      * If the response from the Server is negative, then the exception is thrown.
      *
      * @param voteString
-     * @param contractId
+     * @param contractId represents the contract ID
      * @throws Exception
      */
     public void modifyProtocol(String voteString, byte[] contractId) throws Exception {
@@ -131,9 +131,21 @@ public class SSLClient {
     }
 
     /**
+     * The following method is used to check a smart contract already present
+     * within the VoteChain.
+     * To do this, it sends the request to the server, entering the message, the
+     * contract
+     * id and the ring, and signing it. Then, it waits for the response from the
+     * server and
+     * finally if the verification is successful it displays the contract, otherwise
+     * it
+     * throws the exception.
+     *
+     * @param contractId represents the contract ID
+     * @throws Exception
      */
     public void viewProtocol(byte[] contractId) throws Exception {
-        String message ="rendering " + Utils.toString(contractId);
+        String message = "rendering " + Utils.toString(contractId);
 
         outputStream.writeObject(message);
         outputStream.writeObject(contractId);
@@ -145,15 +157,14 @@ public class SSLClient {
         byte[] sign = LinkableRingSignature.sign(keyPair.getPrivate(), message, ring);
         outputStream.writeObject(sign);
 
-
-        String serverResponse =(String) inputStream.readObject();
-        byte[]  serverCommit =(byte[]) inputStream.readObject();
+        String serverResponse = (String) inputStream.readObject();
+        byte[] serverCommit = (byte[]) inputStream.readObject();
 
         if (!FiatShamirSignature.verify(serverResponse, serverCommit, serverKey)) {
             throw new InvalidCommitException("Fiat Shamir Signature not well formed");
         }
 
-        System.out.println("contract is:\n"+serverResponse);
+        System.out.println("contract is:\n" + serverResponse);
 
     }
 
@@ -186,15 +197,16 @@ public class SSLClient {
         outputStream.writeObject(ring);
 
         // TO SAVE THE RING THE CLIENT IS SUPPOSED TO WRITE IT INTO THE ring.txt FILE
-        ObjectOutputStream file = new ObjectOutputStream(new FileOutputStream("src/main/resources/clientInfos/ring.txt"));
+        ObjectOutputStream file = new ObjectOutputStream(
+                new FileOutputStream("src/main/resources/clientInfos/ring.txt"));
         file.writeObject(ring);
 
         byte[] sign = LinkableRingSignature.sign(keyPair.getPrivate(), message, ring);
 
         // salvo l'id del contratto all'interno del file
-         FileOutputStream stream = new FileOutputStream("./src/main/resources/clientInfos/contractId.txt");
-         stream.write(sign);
-         outputStream.writeObject(sign);
+        FileOutputStream stream = new FileOutputStream("./src/main/resources/clientInfos/contractId.txt");
+        stream.write(sign);
+        outputStream.writeObject(sign);
 
         // attendo la risposta dal server
 
@@ -209,7 +221,8 @@ public class SSLClient {
     }
 
     /**
-    
+     * The method is used to generate a keyPair using the keygen function.
+     * The method also saves the keyPair to a file.
      */
     private void generateProtocol() {
         String keyFolderPath = "./src/main/resources/clientInfos";
@@ -223,7 +236,13 @@ public class SSLClient {
     }
 
     /**
-     * @param args
+     * The main method in this class is used to manage the behaviour of the client,
+     * that wants to send requests to the server.
+     * Based on the parameters passed by argument, a specific request is sent to the
+     * server.
+     *
+     * @param args represents the modality of operation (generate keypair or create,
+     *             modify, view the contract)
      */
     public static void main(String[] args) {
         // definisco l'algoritmo di lettura delle chiavi pari a DSA in quanto java non

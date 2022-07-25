@@ -15,7 +15,6 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
-
 public class Utils {
 
     public static String toHex(byte[] data, int length) {
@@ -32,7 +31,6 @@ public class Utils {
     public static String toHex(byte[] data) {
         return toHex(data, data.length);
     }
-
 
     public static SecretKey createKeyForAES(SecureRandom random) throws NoSuchAlgorithmException {
         KeyGenerator generator = KeyGenerator.getInstance("AES");
@@ -92,36 +90,39 @@ public class Utils {
     }
 
     /*
-    * -------------------------------------------
-    *             NOSTRE IMPLEMENTAZIONI
-    *--------------------------------------------
-    * */
+     * -------------------------------------------
+     * NOSTRE IMPLEMENTAZIONI
+     * --------------------------------------------
+     */
 
     /**
      * The function gets a KeyPair from a keystore referring to a specific alias
+     *
      * @param keystorePath the path to the keystore folder
-     * @param alias the alias name of the keystore entry
-     * @param password the password of the keystore
+     * @param alias        the alias name of the keystore entry
+     * @param password     the password of the keystore
      * @return teh KeyPair of the corresponding alias
      * @throws Exception
      */
-    public static KeyPair getKeyPair(String keystorePath , String alias, String password) throws Exception{
+    public static KeyPair getKeyPair(String keystorePath, String alias, String password) throws Exception {
         KeyStore keystore = KeyStore.getInstance("JKS");
         keystore.load(new FileInputStream(keystorePath), password.toCharArray());
         PrivateKey privateKey = (PrivateKey) keystore.getKey(alias, password.toCharArray());
         PublicKey publicKey = keystore.getCertificate(alias).getPublicKey();
-        return  new KeyPair(publicKey,privateKey);
+        return new KeyPair(publicKey, privateKey);
     }
 
     /**
-     * The function gets the public key from the keystore, referring to a particular alias name
+     * The function gets the public key from the keystore, referring to a particular
+     * alias name
+     *
      * @param keystorePath the path to the keystore folder
-     * @param alias the alias name of the keystore entry
-     * @param password the password of the keystore
+     * @param alias        the alias name of the keystore entry
+     * @param password     the password of the keystore
      * @return the PublicKey of the corresponding alias
      * @throws Exception
      */
-    public static PublicKey getPublicKey(String keystorePath , String alias, String password) throws Exception{
+    public static PublicKey getPublicKey(String keystorePath, String alias, String password) throws Exception {
         KeyStore keystore = KeyStore.getInstance("JKS");
         keystore.load(new FileInputStream(keystorePath), password.toCharArray());
         return keystore.getCertificate(alias).getPublicKey();
@@ -129,7 +130,9 @@ public class Utils {
     }
 
     /**
-     * The function generates a KeyPair of public and private keys which can be used to sign m256withDSA protocol
+     * The function generates a KeyPair of public and private keys which can be used
+     * to sign m256withDSA protocol
+     *
      * @return the KeyPair of generated keys
      * @throws Exception
      */
@@ -171,7 +174,7 @@ public class Utils {
      * @return
      * @throws Exception
      */
-    public static KeyPair LoadKeyPair(String path, String algorithm)throws Exception {
+    public static KeyPair LoadKeyPair(String path, String algorithm) throws Exception {
         // Read Public Key.
         File filePublicKey = new File(path + "/public.key");
         FileInputStream fis = new FileInputStream(path + "/public.key");
@@ -200,16 +203,22 @@ public class Utils {
     }
 
     public static boolean isVoteValid(int vote) throws VoteNotValidException {
-        return  ((vote >= -1 && vote <= 1));
+        return ((vote >= -1 && vote <= 1));
 
     }
 
-
+    /**
+     * This method accesses a file in which the applicant's own private key ring,
+     * already correctly saved on first access, is saved.
+     *
+     * @param filePath the path of the file containing the ring
+     */
     public static List<PublicKey> getRing(String filePath) {
-        //accede a un file in cui è salvato il ring privato della chiave dello stesso richiedente
-        //già correttamente salvato al primo accesso
+        // accede a un file in cui è salvato il ring privato della chiave dello stesso
+        // richiedente
+        // già correttamente salvato al primo accesso
 
-        //ritorna il ring letto
+        // ritorna il ring letto
         return new ArrayList<>();
     }
 }

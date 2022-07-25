@@ -13,39 +13,68 @@ import java.util.Random;
 
 public class LinkableRingSignature {
 
-    public static void setup(int n){
+    /**
+     * @param n
+     */
+    public static void setup(int n) {
         SharedData.setPublicParameters(new SecureRandom(Utils.toByteArray(String.valueOf(n))).nextInt());
     }
 
-    public static KeyPair keygen(int publicParameters)throws Exception{
+    /**
+     * @param publicParameters
+     * @return KeyPair
+     * @throws Exception
+     */
+    public static KeyPair keygen(int publicParameters) throws Exception {
         return Utils.generateKeys(publicParameters);
     }
 
-    public static byte[] sign(PrivateKey privateKey, String message, List<PublicKey> ring){
+    /**
+     * @param privateKey
+     * @param message
+     * @param ring
+     * @return byte[]
+     */
+    public static byte[] sign(PrivateKey privateKey, String message, List<PublicKey> ring) {
         byte[] sign_emulator = new byte[256];
         new SecureRandom().nextBytes(sign_emulator);
         return sign_emulator;
     }
 
-    public static boolean verify(List<PublicKey> ring, String message, byte[] sign){
+    /**
+     * @param ring
+     * @param message
+     * @param sign
+     * @return boolean
+     */
+    public static boolean verify(List<PublicKey> ring, String message, byte[] sign) {
         return true;
-        //return new SecureRandom().nextFloat() < 0.95;
+        // return new SecureRandom().nextFloat() < 0.95;
     }
 
-    public static boolean link(byte[] signA, byte[] signB){
+    /**
+     * @param signA
+     * @param signB
+     * @return boolean
+     */
+    public static boolean link(byte[] signA, byte[] signB) {
         // DA TRUE SE LINKA FALSE ALTRIMENTI
-        //ho messo il segno maggiore per il caso applicativo
-       // return  new SecureRandom().nextFloat() > 0.5;
-        return  true;
+        // ho messo il segno maggiore per il caso applicativo
+        // return new SecureRandom().nextFloat() > 0.5;
+        return true;
     }
 
-    public static List<PublicKey> getRandomRing(int size){
+    /**
+     * @param size
+     * @return List<PublicKey>
+     */
+    public static List<PublicKey> getRandomRing(int size) {
         return new ArrayList<>();
         /*
-        List<PublicKey> ring = SharedData.getPublicKeys();
-        Collections.shuffle(ring);
-        int randomIndex=new Random().nextInt(ring.toArray().length-size);
-        return ring.subList(randomIndex,randomIndex+size-1);
-        */
+         * List<PublicKey> ring = SharedData.getPublicKeys();
+         * Collections.shuffle(ring);
+         * int randomIndex=new Random().nextInt(ring.toArray().length-size);
+         * return ring.subList(randomIndex,randomIndex+size-1);
+         */
     }
 }

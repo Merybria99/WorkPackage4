@@ -9,13 +9,28 @@ import java.io.ObjectInputStream;
 import java.lang.reflect.Array;
 
 public class Counter {
-    public static void main(String[] args) throws Exception {
 
+    /**
+     * This main run the ballot operation
+     *
+     * @param args represents the first and second candidates name
+     * @throws Exception
+     */
+    public static void main(String[] args) throws Exception {
         int result = getResults("./src/main/resources/VoteChain.txt");
-        // i due  candidati sono passati a linea di comando ricordando che il piu grande debba essere il primo
-        System.out.println("The winner is: "+ (result<0?args[0]:args[1]));
+        // the two candidates are passed by args remembering that the older should be
+        // first
+        System.out.println("The winner is: " + (result < 0 ? args[0] : args[1]));
     }
 
+    /**
+     * This method reads the vote for each smart contract and adds it up.
+     * Once the calculation is complete, it returns the result.
+     *
+     * @param VoteChainPath represents the path of VoteChain file
+     * @return int represents the sum of all the votes on the VoteChain
+     * @throws IOException
+     */
     private static int getResults(String VoteChainPath) throws IOException {
         int result = 0;
 
@@ -25,7 +40,7 @@ public class Counter {
             while ((readContract = (Contract) ois.readObject()) != null) {
                 result += readContract.getVote();
             }
-        } catch (ClassNotFoundException| EOFException e) {
+        } catch (ClassNotFoundException | EOFException e) {
         }
         return result;
     }

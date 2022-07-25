@@ -140,7 +140,17 @@ public class SSLServer {
 
     }
 
-
+    /**
+     * This method represents the protocol we have defined for responding to client
+     * view requests.
+     * all necessary parameters are received on the input stream, then the
+     * verification operations
+     * are carried out. If no exceptions are thrown, then the server responds to the
+     * client,
+     * sending the requested smart contract data.
+     *
+     * @throws Exception
+     */
     private void viewProtocol() throws Exception {
         String message = (String) inputStream.readObject();
         byte[] contractId = (byte[]) inputStream.readObject();
@@ -155,16 +165,16 @@ public class SSLServer {
 
         ObjectInputStream ois = new ObjectInputStream(new FileInputStream("./src/main/resources/VoteChain.txt"));
         Contract desiredContract = null;
-        String messageContract = "" ;
+        String messageContract = "";
         try {
-            while ((desiredContract = (Contract) ois.readObject()) != null){
-                if (Arrays.equals(desiredContract.getContractId(),contractId)) {
+            while ((desiredContract = (Contract) ois.readObject()) != null) {
+                if (Arrays.equals(desiredContract.getContractId(), contractId)) {
                     messageContract = desiredContract.toString();
                     break;
                 }
             }
         } catch (EOFException | StreamCorruptedException e) {
-            messageContract= "contract not found";
+            messageContract = "contract not found";
 
         }
         ois.close();
@@ -216,7 +226,6 @@ public class SSLServer {
         Timestamp timestamp = new Timestamp(new Date().getTime());
         byte[] oldSign = modifyContractOnVoteChain(contractId, vote, sign, timestamp);
 
-
         String response = "change " + oldSign + " on " + contractId + " at " + timestamp;
         byte[] modifyResponse = concatByteArrays(Utils.toByteArray("change "), sign,
                 Utils.toByteArray(" on "), contractId,
@@ -244,11 +253,11 @@ public class SSLServer {
         ArrayList<Contract> contracts = new ArrayList<>();
         ObjectInputStream ois = new ObjectInputStream(new FileInputStream("./src/main/resources/VoteChain.txt"));
         Contract readContract = null;
-        try{
+        try {
             while ((readContract = (Contract) ois.readObject()) != null) {
                 System.out.println(Utils.toString(readContract.getContractId()));
-                if (Arrays.equals(readContract.getContractId(),contractId)) {
-                    oldSign = readContract.getSign();
+                if (Arrays.equals(readContract.getContractId(), contractId)) {
+                    oldSign = readContract.getLastCommit();
                     readContract.update(vote, timestamp, sign);
 
                 }
@@ -286,8 +295,8 @@ public class SSLServer {
      * This method creates and returns a byte array for responding the client after
      * the creation phase
      *
-     * @param sign    represents the sign of the smart contract
-     * @param vote    represents the vote
+     * @param sign represents the sign of the smart contract
+     * @param vote represents the vote
      * @return byte[] byte array of the response
      * @throws IOException
      */
@@ -332,10 +341,13 @@ public class SSLServer {
     /***************** MAIN ******************/
 
     /**
-     * @param args
+     * The main method in this class is used to manage the behaviour of the server
+     * in response to the client.
+     * The connection is initialised and the server waits for requests from clients.
+     *
      * @throws Exception
      */
-    public static void main(String[] args) throws Exception {
+    public static void main() throws Exception {
 
         Security.addProvider(new BouncyCastleProvider());
 
