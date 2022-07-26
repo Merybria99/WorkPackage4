@@ -218,7 +218,7 @@ public class SSLClient extends LinkableRingSignature {
         FileOutputStream stream = new FileOutputStream("./src/main/resources/clientInfos/contractId.txt");
         stream.write(sign);
         outputStream.writeObject(sign);
-        
+
         byte[] serverResponse = (byte[]) inputStream.readObject();
         byte[] serverCommit = (byte[]) inputStream.readObject();
 
